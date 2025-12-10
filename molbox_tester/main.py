@@ -99,13 +99,9 @@ class MolboxTester:
                 timeout=self.timeout
             )
             
-            if response:
-                response_str = response.decode('ascii', errors='ignore').strip()
-                logger.info(f"Received: {response_str}")
-                return True
-            else:
-                logger.warning("No response received within timeout")
-                return False
+            response_str = response.decode('ascii', errors='ignore').strip()
+            logger.info(f"Received: {response_str}")
+            return True
 
         except asyncio.TimeoutError:
             logger.warning("No response received within timeout")
