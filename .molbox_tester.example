@@ -1,0 +1,15 @@
+[molbox]
+# Host address to connect to
+host = localhost
+
+# Port number (default telnet port is 23)
+port = 23
+
+# Interval in seconds between commands
+interval = 2.0
+
+# Command to send
+command = ALLR
+
+# Timeout in seconds for receiving response
+timeout = 10
