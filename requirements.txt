@@ -1,0 +1,2 @@
+# No external dependencies required
+# telnetlib is part of Python standard library
