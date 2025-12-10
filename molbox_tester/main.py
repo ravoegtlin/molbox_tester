@@ -72,7 +72,7 @@ class MolboxTester:
             try:
                 self.writer.close()
                 await self.writer.wait_closed()
-                logger.info("Disconnected")
+                logger.info(f"Disconnected from {self.host}:{self.port}")
             except Exception as e:
                 logger.error(f"Error during disconnect: {e}")
             finally:
