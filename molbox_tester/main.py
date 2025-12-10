@@ -10,7 +10,6 @@ import telnetlib
 import time
 import logging
 import sys
-import os
 from pathlib import Path
 from configparser import ConfigParser
 

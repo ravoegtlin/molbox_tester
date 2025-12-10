@@ -10,6 +10,10 @@ Ein Python-Tool, das periodisch Befehle über Telnet an einen Host sendet und di
 - Automatisches Reconnect bei Timeout oder Verbindungsabbruch
 - Konfigurierbar über ~/.molbox_tester
 
+## Anforderungen
+
+- Python 3.8 bis 3.12 (telnetlib ist ab Python 3.11 deprecated und wird in 3.13 entfernt)
+
 ## Installation
 
 ```bash
