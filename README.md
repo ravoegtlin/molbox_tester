@@ -73,3 +73,29 @@ $ molbox
 2025-12-10 10:00:02,251 - INFO - Sent: ALLR
 2025-12-10 10:00:02,350 - INFO - Received: OK
 ```
+
+## Erstellen von Binärdateien
+
+Um eine eigenständige ausführbare Datei (.exe für Windows oder Binary für Linux) zu erstellen:
+
+```bash
+python build.py
+```
+
+Das Build-Script:
+- Installiert automatisch PyInstaller
+- Installiert alle erforderlichen Abhängigkeiten
+- Erstellt eine eigenständige ausführbare Datei im `dist/` Verzeichnis
+
+### Plattformen
+
+- **Windows**: Erzeugt `dist/molbox.exe`
+- **Linux**: Erzeugt `dist/molbox`
+
+Die erstellte Datei kann ohne Python-Installation ausgeführt werden und enthält alle notwendigen Abhängigkeiten.
+
+### Hinweise
+
+- Das Build-Script muss auf der Zielplattform ausgeführt werden (Windows-Binary auf Windows, Linux-Binary auf Linux)
+- Die erstellten Binaries sind groß (~10-20 MB), da sie Python und alle Abhängigkeiten enthalten
+- Nach dem Build können Sie die Datei aus dem `dist/` Verzeichnis kopieren und verwenden
