@@ -5,7 +5,6 @@ Build script for creating executables for Windows (.exe) and Linux.
 This script uses PyInstaller to create standalone binaries.
 """
 
-import os
 import sys
 import subprocess
 import platform
@@ -82,7 +81,7 @@ exe = EXE(
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
-    upx=True,
+    upx=False,
     upx_exclude=[],
     runtime_tmpdir=None,
     console=True,
@@ -154,7 +153,7 @@ def main():
     
     # Step 2: Install dependencies
     if not run_command(
-        [sys.executable, "-m", "pip", "install", "-e", "."],
+        [sys.executable, "-m", "pip", "install", "."],
         "Installing package dependencies"
     ):
         print("\nFailed to install dependencies!")
