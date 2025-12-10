@@ -89,17 +89,17 @@ class MolboxTester:
         try:
             # Send command
             command_str = self.command + "\r\n"
-            self.writer.write(command_str.encode('ascii'))
+            self.writer.write(command_str)
             await self.writer.drain()
             logger.info(f"Sent: {self.command}")
 
             # Read response with timeout
             response = await asyncio.wait_for(
-                self.reader.readuntil(b"\n"),
+                self.reader.readline(),
                 timeout=self.timeout
             )
             
-            response_str = response.decode('ascii', errors='ignore').strip()
+            response_str = response.strip()
             logger.info(f"Received: {response_str}")
             return True
 
