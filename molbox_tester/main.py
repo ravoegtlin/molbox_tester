@@ -4,6 +4,9 @@ Main module for molbox_tester.
 
 Connects to a host via telnet, sends commands periodically, and logs responses.
 Implements timeout handling and automatic reconnection.
+
+Note: telnetlib is deprecated since Python 3.11 and removed in Python 3.13.
+This package requires Python 3.8-3.12.
 """
 
 import telnetlib
