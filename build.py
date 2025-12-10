@@ -110,7 +110,7 @@ def build_executable():
     
     # Build with PyInstaller
     success = run_command(
-        ["pyinstaller", "--clean", str(spec_file)],
+        [sys.executable, "-m", "PyInstaller", "--clean", str(spec_file)],
         f"Building executable for {system}"
     )
     
