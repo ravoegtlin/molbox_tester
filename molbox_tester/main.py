@@ -5,16 +5,15 @@ Main module for molbox_tester.
 Connects to a host via telnet, sends commands periodically, and logs responses.
 Implements timeout handling and automatic reconnection.
 
-Note: telnetlib is deprecated since Python 3.11 and removed in Python 3.13.
-This package requires Python 3.8-3.12.
+Uses telnetlib3 for modern async telnet support.
 """
 
-import telnetlib
-import time
+import asyncio
 import logging
 import sys
 from pathlib import Path
 from configparser import ConfigParser
+import telnetlib3
 
 
 # Configure logging
@@ -47,31 +46,40 @@ class MolboxTester:
         self.interval = interval
         self.command = command
         self.timeout = timeout
-        self.tn = None
+        self.reader = None
+        self.writer = None
 
-    def connect(self):
+    async def connect(self):
         """Establish telnet connection to the host."""
         try:
             logger.info(f"Connecting to {self.host}:{self.port}...")
-            self.tn = telnetlib.Telnet(self.host, self.port, timeout=self.timeout)
+            self.reader, self.writer = await asyncio.wait_for(
+                telnetlib3.open_connection(self.host, self.port),
+                timeout=self.timeout
+            )
             logger.info("Connected successfully")
             return True
+        except asyncio.TimeoutError:
+            logger.error(f"Connection timeout after {self.timeout} seconds")
+            return False
         except Exception as e:
             logger.error(f"Connection failed: {e}")
             return False
 
-    def disconnect(self):
+    async def disconnect(self):
         """Close the telnet connection."""
-        if self.tn:
+        if self.writer:
             try:
-                self.tn.close()
-                logger.info("Disconnected")
+                self.writer.close()
+                await self.writer.wait_closed()
+                logger.info(f"Disconnected from {self.host}:{self.port}")
             except Exception as e:
                 logger.error(f"Error during disconnect: {e}")
             finally:
-                self.tn = None
+                self.reader = None
+                self.writer = None
 
-    def send_command(self):
+    async def send_command(self):
         """
         Send command and read response.
 
@@ -80,29 +88,32 @@ class MolboxTester:
         """
         try:
             # Send command
-            command_bytes = (self.command + "\r\n").encode('ascii')
-            self.tn.write(command_bytes)
+            command_str = self.command + "\r\n"
+            self.writer.write(command_str)
+            await self.writer.drain()
             logger.info(f"Sent: {self.command}")
 
             # Read response with timeout
-            response = self.tn.read_until(b"\n", timeout=self.timeout)
+            response = await asyncio.wait_for(
+                self.reader.readline(),
+                timeout=self.timeout
+            )
             
-            if response:
-                response_str = response.decode('ascii', errors='ignore').strip()
-                logger.info(f"Received: {response_str}")
-                return True
-            else:
-                logger.warning("No response received within timeout")
-                return False
+            response_str = response.strip()
+            logger.info(f"Received: {response_str}")
+            return True
 
-        except EOFError:
+        except asyncio.TimeoutError:
+            logger.warning("No response received within timeout")
+            return False
+        except asyncio.IncompleteReadError:
             logger.error("Connection closed by remote host")
             return False
         except Exception as e:
             logger.error(f"Error sending command: {e}")
             return False
 
-    def run(self):
+    async def run(self):
         """Main loop: send commands periodically with reconnection logic."""
         logger.info("Starting molbox_tester...")
         logger.info(f"Configuration: host={self.host}, port={self.port}, "
@@ -110,26 +121,26 @@ class MolboxTester:
 
         while True:
             # Ensure we're connected
-            if not self.tn:
-                if not self.connect():
+            if not self.writer:
+                if not await self.connect():
                     logger.warning(f"Retrying connection in {self.interval} seconds...")
-                    time.sleep(self.interval)
+                    await asyncio.sleep(self.interval)
                     continue
 
             # Send command and handle response
-            success = self.send_command()
+            success = await self.send_command()
             
             if not success:
                 # Timeout or error occurred, reconnect
                 logger.warning("Reconnecting due to timeout or error...")
-                self.disconnect()
-                if not self.connect():
+                await self.disconnect()
+                if not await self.connect():
                     logger.warning(f"Reconnection failed, retrying in {self.interval} seconds...")
-                    time.sleep(self.interval)
+                    await asyncio.sleep(self.interval)
                     continue
 
             # Wait for next interval
-            time.sleep(self.interval)
+            await asyncio.sleep(self.interval)
 
 
 def load_config():
@@ -175,18 +186,23 @@ def load_config():
     return config
 
 
+async def async_main():
+    """Async main entry point for the molbox command."""
+    config = load_config()
+    tester = MolboxTester(
+        host=config['host'],
+        port=config['port'],
+        interval=config['interval'],
+        command=config['command'],
+        timeout=config['timeout']
+    )
+    await tester.run()
+
+
 def main():
     """Main entry point for the molbox command."""
     try:
-        config = load_config()
-        tester = MolboxTester(
-            host=config['host'],
-            port=config['port'],
-            interval=config['interval'],
-            command=config['command'],
-            timeout=config['timeout']
-        )
-        tester.run()
+        asyncio.run(async_main())
     except KeyboardInterrupt:
         logger.info("\nShutting down gracefully...")
         sys.exit(0)
