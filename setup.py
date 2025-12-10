@@ -21,7 +21,10 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires=">=3.8,<3.13",
+    python_requires=">=3.8",
+    install_requires=[
+        "telnetlib3>=2.0.0",
+    ],
     entry_points={
         "console_scripts": [
             "molbox=molbox_tester.main:main",

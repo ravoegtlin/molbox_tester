@@ -12,7 +12,8 @@ Ein Python-Tool, das periodisch Befehle über Telnet an einen Host sendet und di
 
 ## Anforderungen
 
-- Python 3.8 bis 3.12 (telnetlib ist ab Python 3.11 deprecated und wird in 3.13 entfernt)
+- Python 3.8 oder höher
+- telnetlib3 (wird automatisch bei der Installation installiert)
 
 ## Installation
 
