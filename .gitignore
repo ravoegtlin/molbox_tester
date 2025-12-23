@@ -35,6 +35,9 @@ env/
 *.swo
 *~
 
+# PyInstaller
+*.spec
+
 # OS
 .DS_Store
 Thumbs.db
